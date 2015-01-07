@@ -1,3 +1,3 @@
-depend:geometry
+depend:geometry simple_gui
 CFLAGS:
 LDFLAGS:
