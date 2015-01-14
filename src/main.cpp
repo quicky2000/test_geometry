@@ -20,9 +20,9 @@
 #include "simple_gui.h"
 #include "convex_shape.hpp"
 #include <iostream>
-
 #include <vector>
 #include <math.h>
+#include <unistd.h>
 
 int main(void)
 {
