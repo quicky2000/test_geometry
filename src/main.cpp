@@ -25,6 +25,8 @@
 #include <math.h>
 #include <unistd.h>
 
+using namespace geometry;
+
 void draw_shape(simple_gui & p_gui,const shape & p_shape)
 {
   uint32_t l_nb_segments = p_shape.get_nb_segment();
