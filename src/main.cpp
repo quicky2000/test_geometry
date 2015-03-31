@@ -27,7 +27,27 @@
 
 using namespace geometry;
 
-void draw_shape(simple_gui & p_gui,const shape & p_shape)
+void draw_point(simple_gui & p_gui,const point & p, const uint32_t & p_color_code)
+{
+  p_gui.set_pixel_without_lock(p.get_x()*30+10,p.get_y()*30+10,p_color_code);
+}
+
+void draw_internal_shape(simple_gui & p_gui,const shape & p_shape,const uint32_t & p_color_code)
+{
+  for(double l_y = 0 ; l_y < 7 ; l_y += 0.1)
+    {
+      for(double l_x = 0 ; l_x < 7 ; l_x += 0.1)
+        {
+          point l_point(l_x,l_y);
+          if(p_shape.contains(l_point))
+            {
+              draw_point(p_gui,l_point,p_gui.getColorCode(0,255,0));
+              p_gui.refresh();
+            }
+        }
+    }
+}
+void draw_shape(simple_gui & p_gui,const shape & p_shape, const uint32_t & p_color_code)
 {
   uint32_t l_nb_segments = p_shape.get_nb_segment();
   for(uint32_t l_index = 0 ; l_index < l_nb_segments ; ++l_index)
@@ -36,7 +56,7 @@ void draw_shape(simple_gui & p_gui,const shape & p_shape)
 		      p_shape.get_segment(l_index).get_source().get_y()*30+10,
 		      p_shape.get_segment(l_index).get_dest().get_x()*30+10,
 		      p_shape.get_segment(l_index).get_dest().get_y()*30+10,
-		      p_gui.getColorCode(255,0,0)
+		      p_color_code
 		      );
     }
 }
@@ -61,11 +81,25 @@ int main(void)
 
   l_y = 2.5;
   l_x = l_seg.get_x(l_y);
-  std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
   
   std::cout << "Compute X from Y according to segment : " << std::endl ;
+  std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
+
   std::cout << "Belong : " << (l_seg.belong(point(l_x,l_y)) ? "yes" : "no") << std::endl ;
 
+  segment l_horizontal_segment(point(0,0),point(2,0));
+  l_x = 1;
+  l_y = l_horizontal_segment.get_y(l_x);
+  std::cout << "Compute Y from X according to horizontal segment : " << std::endl ;
+  std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
+  std::cout << "Belong : " << (l_horizontal_segment.belong(point(l_x,l_y)) ? "yes" : "no") << std::endl ;
+
+  segment l_vertical_segment(point(0,0),point(0,2));
+  l_y = 1;
+  l_x = l_vertical_segment.get_x(l_y);
+  std::cout << "Compute X from Y according to vertical segment : " << std::endl ;
+  std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
+  std::cout << "Belong : " << (l_vertical_segment.belong(point(l_x,l_y)) ? "yes" : "no") << std::endl ;
 
   std::cout << "--------- TEST VECTORIAL PRODUCT ------------" << std::endl ;
   point l_up(7,7);
@@ -116,9 +150,10 @@ int main(void)
   l_list.push_back(l_A);
 
   polygon l_polygon2(l_list);
-  draw_shape(l_gui,l_polygon2);
+  draw_shape(l_gui,l_polygon2,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
   std::cout << "Polygon is convex " << ( l_polygon2.is_convex() ? "yes" : "no") << std::endl ;
+  draw_internal_shape(l_gui,l_polygon2,l_gui.getColorCode(0,0,255));
   sleep(10);
 
   std::cout << "------- TEST CONCAV POLYGON ------------" << std::endl ;
@@ -133,25 +168,55 @@ int main(void)
   l_list.push_back(point(0,3));
   polygon l_polygon(l_list);
 
-  std::cout << "Convex ? " << ( l_polygon.is_convex() ? "yes" : "no" ) << std::endl ;
 
   clear_gui(l_gui);
-  draw_shape(l_gui,l_polygon);
+  draw_shape(l_gui,l_polygon,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
+
+  std::cout << "Convex ? " << ( l_polygon.is_convex() ? "yes" : "no" ) << std::endl ;
+  l_polygon.cut_in_convex_polygon();
+
+  sleep(10);
+  clear_gui(l_gui);
+
+  l_list.clear();
+  l_list = { point(0,0),point(5,0),point(5,1),point(4,1),point(4,2),point(6,2),point(6,3),point(3,3),point(2,2),point(1,3),point(0,3)};
+  polygon l_polygon3(l_list);
+
+
+  clear_gui(l_gui);
+  draw_shape(l_gui,l_polygon3,l_gui.getColorCode(255,0,0));
+  l_gui.refresh();
+
+  std::cout << "Convex ? " << ( l_polygon3.is_convex() ? "yes" : "no" ) << std::endl ;
+  l_polygon3.cut_in_convex_polygon();
+  draw_shape(l_gui,l_polygon3.get_convex_shape(),l_gui.getColorCode(0,0,255));
+  l_gui.refresh();
+  sleep(10);
+  l_polygon3.contains(point(1,1));
+  l_polygon3.contains(point(2,3));
+  l_polygon3.contains(point(4.5,0.5));
+
+  sleep(10);
+
+  draw_internal_shape(l_gui,l_polygon3,l_gui.getColorCode(0,255,0));
   sleep(10);
 
   clear_gui(l_gui);
+
   
-  convex_shape l_convex_shape(point(1,0),point(10,0),point(10,10));
-  draw_shape(l_gui,l_convex_shape);
+  convex_shape l_convex_shape(point(1,0),point(5,0),point(5,5));
+  draw_shape(l_gui,l_convex_shape,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
   std::cout << "Contains (0,0) ? " << l_convex_shape.contains(point(0,0)) << std::endl ;
   std::cout << "Contains (3,1) ? " << l_convex_shape.contains(point(3,1)) << std::endl ;
-  std::cout << "Add (12,10) keep convexity : " << l_convex_shape.add(point(12,10)) << std::endl ;
-  sleep(10);
-  std::cout << "Add (1,10) keep convexity : " << l_convex_shape.add(point(1,10)) << std::endl ;
+  std::cout << "Add (12,5) keep convexity : " << l_convex_shape.add(point(12,5)) << std::endl ;
+  sleep(5);
+  std::cout << "Add (1,5) keep convexity : " << l_convex_shape.add(point(1,5)) << std::endl ;
   l_gui.set_rectangle_without_lock(0,0,640,480,l_gui.getColorCode(0,0,0));
-  draw_shape(l_gui,l_convex_shape);
+  draw_shape(l_gui,l_convex_shape,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
+  sleep(10);
+  draw_internal_shape(l_gui,l_convex_shape,l_gui.getColorCode(0,0,255));
   sleep(10);
 }
