@@ -69,6 +69,28 @@ void clear_gui(simple_gui & p_gui)
 
 int main(void)
 {
+  std::cout << "------- TEST CHECK_CONVEXITY ---------" << std::endl ;
+  double l_orient = 0;
+  bool l_result = segment::check_convex_continuation(2,l_orient,true);
+  std::cout << "Check[0] : " << l_result << std::endl ;
+  assert(l_result);
+
+  l_result = segment::check_convex_continuation(-2,l_orient,false);
+  std::cout << "Check[1] : " << l_result << std::endl ;
+  assert(!l_result);
+
+  l_result = segment::check_convex_continuation(2,l_orient,true);
+  std::cout << "Check[0] : " << l_result << std::endl ;
+  assert(l_result);
+
+  l_result = segment::check_convex_continuation(0,l_orient,false);
+  std::cout << "Check[1] : " << l_result << std::endl;
+  assert(l_result);
+
+  l_result = segment::check_convex_continuation(-2,l_orient,false);
+  std::cout << "Check[2] : " << l_result << std::endl ;
+  assert(!l_result);
+
   std::cout << "------- TEST SEGMENT ---------" << std::endl ;
   point l_source(0,0);
   point l_dest(10,5);
@@ -175,6 +197,8 @@ int main(void)
 
   std::cout << "Convex ? " << ( l_polygon.is_convex() ? "yes" : "no" ) << std::endl ;
   l_polygon.cut_in_convex_polygon();
+  draw_shape(l_gui,l_polygon.get_convex_shape(),l_gui.getColorCode(0,0,255));
+  l_gui.refresh();
 
   sleep(10);
   clear_gui(l_gui);
