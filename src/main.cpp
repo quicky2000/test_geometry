@@ -41,6 +41,9 @@ void draw_internal_shape(simple_gui & p_gui,const shape & p_shape,const uint32_t
           point l_point(l_x,l_y);
           if(p_shape.contains(l_point))
             {
+#ifdef VERBOSE
+              std::cout << l_point << " : IN" << std::endl ;
+#endif
               draw_point(p_gui,l_point,p_gui.getColorCode(0,255,0));
               p_gui.refresh();
             }
@@ -67,7 +70,7 @@ void clear_gui(simple_gui & p_gui)
   p_gui.refresh();
 }
 
-int main(void)
+void basic_tests(void)
 {
   std::cout << "------- TEST CHECK_CONVEXITY ---------" << std::endl ;
   double l_orient = 0;
@@ -153,83 +156,59 @@ int main(void)
   std::cout << (l_UN_ZERO < l_ZERO_UN) << std::endl ;
   std::cout << (l_ZERO_UN < l_UN_ZERO) << std::endl ;
   std::cout << (l_ZERO_ZERO < l_ZERO_ZERO) << std::endl ;
+}
+
+void test_polygon(simple_gui & p_gui,const std::vector<point> & p_list)
+{
+  clear_gui(p_gui);
+  polygon l_polygon(p_list);
+  draw_shape(p_gui,l_polygon,p_gui.getColorCode(255,0,0));
+  p_gui.refresh();
+
+  sleep(2);
+
+  bool l_is_convex = l_polygon.is_convex();
+  std::cout << "Convex ? " << ( l_is_convex ? "yes" : "no" ) << std::endl ;
+  if(!l_is_convex)
+    {
+      l_polygon.cut_in_convex_polygon();
+      draw_shape(p_gui,l_polygon.get_convex_shape(),p_gui.getColorCode(0,0,255));
+      p_gui.refresh();
+    }
+  sleep(2);
+
+  draw_internal_shape(p_gui,l_polygon,p_gui.getColorCode(0,255,0));
+  sleep(5);
+}
+
+int main(void)
+{
+
+  basic_tests();
 
   simple_gui l_gui;
   l_gui.createWindow(640,480);
 
   std::cout << "----------- DRAW TRAPEZ ----------" << std::endl ;
-  point l_A(0,0);
-  point l_B(5,0);
-  point l_C(5,3);
-  point l_C_bis(3,1);
-  point l_D(2,3);
-  point l_E(5,1);
-
-  std::vector<point> l_list;
-  l_list.push_back(l_B);
-  l_list.push_back(l_E);
-  l_list.push_back(l_D);
-  l_list.push_back(l_A);
-
-  polygon l_polygon2(l_list);
-  draw_shape(l_gui,l_polygon2,l_gui.getColorCode(255,0,0));
-  l_gui.refresh();
-  std::cout << "Polygon is convex " << ( l_polygon2.is_convex() ? "yes" : "no") << std::endl ;
-  draw_internal_shape(l_gui,l_polygon2,l_gui.getColorCode(0,0,255));
-  sleep(10);
+  test_polygon(l_gui,{point(5,0),point(5,1),point(2,3),point(0,0)});
 
   std::cout << "------- TEST CONCAV POLYGON ------------" << std::endl ;
-  l_list.clear();
-  l_list.push_back(point(0,0));
-  l_list.push_back(point(5,0));
-  l_list.push_back(point(5,1));
-  l_list.push_back(point(4,1));
-  l_list.push_back(point(4,2));
-  l_list.push_back(point(6,2));
-  l_list.push_back(point(6,3));
-  l_list.push_back(point(0,3));
-  polygon l_polygon(l_list);
+  test_polygon(l_gui,{ point(0,0),point(2,0),point(2,1),point(3.3,1),point(3.3,0),point(5,0),point(5,3),point(0,3)});
+
+  test_polygon(l_gui,{point(0,0),point(5,0),point(5,1),point(4,1),point(4,2),point(6,2),point(6,3),point(0,3)});
+
+  test_polygon(l_gui,{point(0,0),point(5,0),point(5,1),point(4,1),point(4,2),point(6,2),point(6,3),point(3,3),point(2,2),point(1,3),point(0,3)});
 
 
-  clear_gui(l_gui);
-  draw_shape(l_gui,l_polygon,l_gui.getColorCode(255,0,0));
-  l_gui.refresh();
-
-  std::cout << "Convex ? " << ( l_polygon.is_convex() ? "yes" : "no" ) << std::endl ;
-  l_polygon.cut_in_convex_polygon();
-  draw_shape(l_gui,l_polygon.get_convex_shape(),l_gui.getColorCode(0,0,255));
-  l_gui.refresh();
-
-  sleep(10);
-  clear_gui(l_gui);
-
-  l_list.clear();
-  l_list = { point(0,0),point(5,0),point(5,1),point(4,1),point(4,2),point(6,2),point(6,3),point(3,3),point(2,2),point(1,3),point(0,3)};
-  polygon l_polygon3(l_list);
-
-
-  clear_gui(l_gui);
-  draw_shape(l_gui,l_polygon3,l_gui.getColorCode(255,0,0));
-  l_gui.refresh();
-
-  std::cout << "Convex ? " << ( l_polygon3.is_convex() ? "yes" : "no" ) << std::endl ;
-  l_polygon3.cut_in_convex_polygon();
-  draw_shape(l_gui,l_polygon3.get_convex_shape(),l_gui.getColorCode(0,0,255));
-  l_gui.refresh();
-  sleep(10);
-  l_polygon3.contains(point(1,1));
-  l_polygon3.contains(point(2,3));
-  l_polygon3.contains(point(4.5,0.5));
-
-  sleep(10);
-
-  draw_internal_shape(l_gui,l_polygon3,l_gui.getColorCode(0,255,0));
-  sleep(10);
-
-  clear_gui(l_gui);
-
+  //  l_polygon3.contains(point(1,1));
+  //  l_polygon3.contains(point(2,3));
+  //  l_polygon3.contains(point(4.5,0.5));
+  //  l_polygon3.contains(point(5.2,0.6));
+  //sleep(10);
   
+  std::cout << "------- TEST CONVEX SHAPE ------------" << std::endl ;
   convex_shape l_convex_shape(point(1,0),point(5,0),point(5,5));
+  clear_gui(l_gui);
   draw_shape(l_gui,l_convex_shape,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
   std::cout << "Contains (0,0) ? " << l_convex_shape.contains(point(0,0)) << std::endl ;
