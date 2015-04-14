@@ -282,6 +282,35 @@ void basic_tests(void)
   std::cout << (l_UN_ZERO < l_ZERO_UN) << std::endl ;
   std::cout << (l_ZERO_UN < l_UN_ZERO) << std::endl ;
   std::cout << (l_ZERO_ZERO < l_ZERO_ZERO) << std::endl ;
+  
+  std::cout << "--------- TEST QUADRAN  ------------" << std::endl ;
+  point<my_type> l_reference_point(1,1);
+  std::vector<std::pair<point<my_type>,unsigned int>> l_quadran_points = {
+    std::pair<point<my_type>,unsigned int>(point<my_type>(0,0),0),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x() - 0.001,0),0),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x(),0),1),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(2 * l_reference_point.get_x(),0),1),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(0,2 * l_reference_point.get_y()),3),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x() - 0.001,2 * l_reference_point.get_y()),3),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x(),2 * l_reference_point.get_y()),2),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(2 * l_reference_point.get_x(),2 * l_reference_point.get_y()),2),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(0,l_reference_point.get_y() - 0.001),0),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(0,l_reference_point.get_y()),3),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(0,2 * l_reference_point.get_y()),3),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x(),l_reference_point.get_y() - 0.001),1),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x(),1),2 * l_reference_point.get_y()),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(l_reference_point.get_x(),2 * l_reference_point.get_y()),2),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(2 * l_reference_point.get_x(),l_reference_point.get_y() - 0.001),1),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(2 * l_reference_point.get_x(),1),2 * l_reference_point.get_y()),
+    std::pair<point<my_type>,unsigned int>(point<my_type>(2 * l_reference_point.get_x(),2 * l_reference_point.get_y()),2)
+  };
+
+  for(auto l_iter : l_quadran_points)
+    {
+      unsigned int l_quadran = quad<my_type>::compute_quadran(l_iter.first,l_reference_point);
+      std::cout << "Point " << l_iter.first << " is computed in quadran " << l_quadran << "\t expected = " << l_iter.second << std::endl;
+      assert(l_iter.second == l_quadran);
+    }
 }
 
 bool fract(const std::vector<point<my_type>> & p_points, std::vector<point<my_type>> & p_result)
@@ -328,7 +357,6 @@ void test_polygon(simple_gui & p_gui,const std::vector<point<my_type>> & p_list)
   polygon<my_type> l_polygon(p_list);
   draw_shape(p_gui,l_polygon,p_gui.getColorCode(255,0,0));
   p_gui.refresh();
-
   sleep(2);
 
   bool l_is_convex = l_polygon.is_convex();
