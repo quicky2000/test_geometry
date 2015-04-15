@@ -27,18 +27,20 @@
 
 using namespace geometry;
 
-void draw_point(simple_gui & p_gui,const point & p, const uint32_t & p_color_code)
+typedef int64_t my_type;
+
+void draw_point(simple_gui & p_gui,const point<my_type> & p, const uint32_t & p_color_code)
 {
-  p_gui.set_pixel_without_lock(p.get_x()*30+10,p.get_y()*30+10,p_color_code);
+  p_gui.set_pixel_without_lock(p.get_x()+10,p.get_y()+10,p_color_code);
 }
 
-void draw_internal_shape(simple_gui & p_gui,const shape & p_shape,const uint32_t & p_color_code)
+void draw_internal_shape(simple_gui & p_gui,const shape<my_type> & p_shape,const uint32_t & p_color_code)
 {
-  for(double l_y = 0 ; l_y < 7 ; l_y += 0.1)
+  for(my_type l_y = 0 ; l_y < 350 ; l_y += 10)
     {
-      for(double l_x = 0 ; l_x < 7 ; l_x += 0.1)
+      for(my_type l_x = 0 ; l_x < 350 ; l_x += 10)
         {
-          point l_point(l_x,l_y);
+          point<my_type> l_point(l_x,l_y);
           if(p_shape.contains(l_point))
             {
 #ifdef VERBOSE
@@ -50,15 +52,15 @@ void draw_internal_shape(simple_gui & p_gui,const shape & p_shape,const uint32_t
         }
     }
 }
-void draw_shape(simple_gui & p_gui,const shape & p_shape, const uint32_t & p_color_code)
+void draw_shape(simple_gui & p_gui,const shape<my_type> & p_shape, const uint32_t & p_color_code)
 {
   uint32_t l_nb_segments = p_shape.get_nb_segment();
   for(uint32_t l_index = 0 ; l_index < l_nb_segments ; ++l_index)
     {
-      p_gui.draw_line(p_shape.get_segment(l_index).get_source().get_x()*30+10,
-		      p_shape.get_segment(l_index).get_source().get_y()*30+10,
-		      p_shape.get_segment(l_index).get_dest().get_x()*30+10,
-		      p_shape.get_segment(l_index).get_dest().get_y()*30+10,
+      p_gui.draw_line(p_shape.get_segment(l_index).get_source().get_x()+10,
+		      p_shape.get_segment(l_index).get_source().get_y()+10,
+		      p_shape.get_segment(l_index).get_dest().get_x()+10,
+		      p_shape.get_segment(l_index).get_dest().get_y()+10,
 		      p_color_code
 		      );
     }
@@ -73,63 +75,63 @@ void clear_gui(simple_gui & p_gui)
 void basic_tests(void)
 {
   std::cout << "------- TEST CHECK_CONVEXITY ---------" << std::endl ;
-  double l_orient = 0;
-  bool l_result = segment::check_convex_continuation(2,l_orient,true);
+  my_type l_orient = 0;
+  bool l_result = segment<my_type>::check_convex_continuation(2,l_orient,true);
   std::cout << "Check[0] : " << l_result << std::endl ;
   assert(l_result);
 
-  l_result = segment::check_convex_continuation(-2,l_orient,false);
+  l_result = segment<my_type>::check_convex_continuation(-2,l_orient,false);
   std::cout << "Check[1] : " << l_result << std::endl ;
   assert(!l_result);
 
-  l_result = segment::check_convex_continuation(2,l_orient,true);
+  l_result = segment<my_type>::check_convex_continuation(2,l_orient,true);
   std::cout << "Check[0] : " << l_result << std::endl ;
   assert(l_result);
 
-  l_result = segment::check_convex_continuation(0,l_orient,false);
+  l_result = segment<my_type>::check_convex_continuation(0,l_orient,false);
   std::cout << "Check[1] : " << l_result << std::endl;
   assert(l_result);
 
-  l_result = segment::check_convex_continuation(-2,l_orient,false);
+  l_result = segment<my_type>::check_convex_continuation(-2,l_orient,false);
   std::cout << "Check[2] : " << l_result << std::endl ;
   assert(!l_result);
 
   std::cout << "------- TEST SEGMENT ---------" << std::endl ;
-  point l_source(0,0);
-  point l_dest(10,5);
-  segment l_seg(l_source,l_dest);
+  point<my_type> l_source(0,0);
+  point<my_type> l_dest(100,50);
+  segment<my_type> l_seg(l_source,l_dest);
 
-  double l_x = 5;
-  double l_y = l_seg.get_y(l_x);
+  my_type l_x = 50;
+  my_type l_y = l_seg.get_y(l_x);
   std::cout << "Compute Y from X according to segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
 
-  l_y = 2.5;
+  l_y = 25;
   l_x = l_seg.get_x(l_y);
   
   std::cout << "Compute X from Y according to segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
 
-  std::cout << "Belong : " << (l_seg.belong(point(l_x,l_y)) ? "yes" : "no") << std::endl ;
+  std::cout << "Belong : " << (l_seg.belong(point<my_type>(l_x,l_y)) ? "yes" : "no") << std::endl ;
 
-  segment l_horizontal_segment(point(0,0),point(2,0));
-  l_x = 1;
+  segment<my_type> l_horizontal_segment(point<my_type>(0,0),point<my_type>(20,0));
+  l_x = 10;
   l_y = l_horizontal_segment.get_y(l_x);
   std::cout << "Compute Y from X according to horizontal segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
-  std::cout << "Belong : " << (l_horizontal_segment.belong(point(l_x,l_y)) ? "yes" : "no") << std::endl ;
+  std::cout << "Belong : " << (l_horizontal_segment.belong(point<my_type>(l_x,l_y)) ? "yes" : "no") << std::endl ;
 
-  segment l_vertical_segment(point(0,0),point(0,2));
-  l_y = 1;
+  segment<my_type> l_vertical_segment(point<my_type>(0,0),point<my_type>(0,20));
+  l_y = 10;
   l_x = l_vertical_segment.get_x(l_y);
   std::cout << "Compute X from Y according to vertical segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
-  std::cout << "Belong : " << (l_vertical_segment.belong(point(l_x,l_y)) ? "yes" : "no") << std::endl ;
+  std::cout << "Belong : " << (l_vertical_segment.belong(point<my_type>(l_x,l_y)) ? "yes" : "no") << std::endl ;
 
   std::cout << "--------- TEST VECTORIAL PRODUCT ------------" << std::endl ;
-  point l_up(7,7);
-  point l_down(5,0);
-  point l_on(5,2.5);
+  point<my_type> l_up(70,70);
+  point<my_type> l_down(50,0);
+  point<my_type> l_on(50,25);
 
   std::cout << "Vectorial product point Up : " << l_seg.get_side(l_up) << std::endl ;
   std::cout << "Vectorial product point Down : " << l_seg.get_side(l_down) << std::endl ;
@@ -137,13 +139,13 @@ void basic_tests(void)
 
 
   std::cout << "--------- TEST SCALAR PRODUCT ------------" << std::endl ;
-  point l_UN_ZERO(1,0);
-  point l_ZERO_UN(0,1);
-  point l_ZERO_ZERO(0,0);
-  point l_UN_UN(1,1);
-  segment l_seg1(l_ZERO_ZERO,l_UN_ZERO);
-  segment l_seg2(l_UN_ZERO,l_ZERO_UN);
-  double l_scalar = l_seg1.scalar_product(l_seg2);
+  point<my_type> l_UN_ZERO(10,0);
+  point<my_type> l_ZERO_UN(0,10);
+  point<my_type> l_ZERO_ZERO(0,0);
+  point<my_type> l_UN_UN(10,10);
+  segment<my_type> l_seg1(l_ZERO_ZERO,l_UN_ZERO);
+  segment<my_type> l_seg2(l_UN_ZERO,l_ZERO_UN);
+  my_type l_scalar = l_seg1.scalar_product(l_seg2);
   std::cout << "Scalar product = " << l_scalar << std::endl ;
 
   std::cout << "Square size seg1 : " << l_seg1.get_square_size() << std::endl ;
@@ -158,10 +160,10 @@ void basic_tests(void)
   std::cout << (l_ZERO_ZERO < l_ZERO_ZERO) << std::endl ;
 }
 
-void test_polygon(simple_gui & p_gui,const std::vector<point> & p_list)
+void test_polygon(simple_gui & p_gui,const std::vector<point<my_type>> & p_list)
 {
   clear_gui(p_gui);
-  polygon l_polygon(p_list);
+  polygon<my_type> l_polygon(p_list);
   draw_shape(p_gui,l_polygon,p_gui.getColorCode(255,0,0));
   p_gui.refresh();
 
@@ -190,32 +192,32 @@ int main(void)
   l_gui.createWindow(640,480);
 
   std::cout << "----------- DRAW TRAPEZ ----------" << std::endl ;
-  test_polygon(l_gui,{point(5,0),point(5,1),point(2,3),point(0,0)});
+  test_polygon(l_gui,{point<my_type>(250,0),point<my_type>(250,50),point<my_type>(100,150),point<my_type>(0,0)});
 
   std::cout << "------- TEST CONCAV POLYGON ------------" << std::endl ;
-  test_polygon(l_gui,{ point(0,0),point(2,0),point(2,1),point(3.3,1),point(3.3,0),point(5,0),point(5,3),point(0,3)});
+  test_polygon(l_gui,{ point<my_type>(0,0),point<my_type>(100,0),point<my_type>(100,50),point<my_type>(170,50),point<my_type>(170,0),point<my_type>(250,0),point<my_type>(250,150),point<my_type>(0,150)});
 
-  test_polygon(l_gui,{point(0,0),point(5,0),point(5,1),point(4,1),point(4,2),point(6,2),point(6,3),point(0,3)});
+  test_polygon(l_gui,{point<my_type>(0,0),point<my_type>(250,0),point<my_type>(250,50),point<my_type>(200,50),point<my_type>(200,100),point<my_type>(300,100),point<my_type>(300,150),point<my_type>(0,150)});
 
-  test_polygon(l_gui,{point(0,0),point(5,0),point(5,1),point(4,1),point(4,2),point(6,2),point(6,3),point(3,3),point(2,2),point(1,3),point(0,3)});
+  test_polygon(l_gui,{point<my_type>(0,0),point<my_type>(250,0),point<my_type>(250,50),point<my_type>(200,50),point<my_type>(200,100),point<my_type>(300,100),point<my_type>(300,150),point<my_type>(150,150),point<my_type>(100,100),point<my_type>(50,150),point<my_type>(0,150)});
 
 
-  //  l_polygon3.contains(point(1,1));
-  //  l_polygon3.contains(point(2,3));
-  //  l_polygon3.contains(point(4.5,0.5));
-  //  l_polygon3.contains(point(5.2,0.6));
+  //  l_polygon3.contains(point<my_type>(10,10));
+  //  l_polygon3.contains(point<my_type>(20,30));
+  //  l_polygon3.contains(point<my_type>(45,5));
+  //  l_polygon3.contains(point<my_type>(52,6));
   //sleep(10);
   
   std::cout << "------- TEST CONVEX SHAPE ------------" << std::endl ;
-  convex_shape l_convex_shape(point(1,0),point(5,0),point(5,5));
+  convex_shape<my_type> l_convex_shape(point<my_type>(50,0),point<my_type>(250,0),point<my_type>(250,250));
   clear_gui(l_gui);
   draw_shape(l_gui,l_convex_shape,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
-  std::cout << "Contains (0,0) ? " << l_convex_shape.contains(point(0,0)) << std::endl ;
-  std::cout << "Contains (3,1) ? " << l_convex_shape.contains(point(3,1)) << std::endl ;
-  std::cout << "Add (12,5) keep convexity : " << l_convex_shape.add(point(12,5)) << std::endl ;
+  std::cout << "Contains (0,0) ? " << l_convex_shape.contains(point<my_type>(0,0)) << std::endl ;
+  std::cout << "Contains (30,10) ? " << l_convex_shape.contains(point<my_type>(150,50)) << std::endl ;
+  std::cout << "Add (120,50) keep convexity : " << l_convex_shape.add(point<my_type>(600,250)) << std::endl ;
   sleep(5);
-  std::cout << "Add (1,5) keep convexity : " << l_convex_shape.add(point(1,5)) << std::endl ;
+  std::cout << "Add (10,50) keep convexity : " << l_convex_shape.add(point<my_type>(50,250)) << std::endl ;
   l_gui.set_rectangle_without_lock(0,0,640,480,l_gui.getColorCode(0,0,0));
   draw_shape(l_gui,l_convex_shape,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
