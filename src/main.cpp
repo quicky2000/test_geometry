@@ -112,21 +112,43 @@ void basic_tests(void)
   std::cout << "Compute X from Y according to segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
 
-  std::cout << "Belong : " << (l_seg.belong(point<my_type>(l_x,l_y)) ? "yes" : "no") << std::endl ;
+  l_result = l_seg.belong(point<my_type>(l_x,l_y));
+  std::cout << "Belong : " << (l_result ? "yes" : "no") << std::endl ;
+  assert(l_result);
+  
+  l_y = 75;
+  l_x = l_seg.get_x(l_y);
+  
+  std::cout << "Compute X from Y according to segment : " << std::endl ;
+  std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
+  
+  l_result = l_seg.belong(point<my_type>(l_x,l_y));
+  std::cout << "Belong : " << (l_result ? "yes" : "no") << std::endl ;
+  assert(!l_result);
 
   segment<my_type> l_horizontal_segment(point<my_type>(0,0),point<my_type>(20,0));
   l_x = 10;
   l_y = l_horizontal_segment.get_y(l_x);
   std::cout << "Compute Y from X according to horizontal segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
-  std::cout << "Belong : " << (l_horizontal_segment.belong(point<my_type>(l_x,l_y)) ? "yes" : "no") << std::endl ;
+  l_result = l_horizontal_segment.belong(point<my_type>(l_x,l_y));
+  std::cout << "Belong : " << (l_result ? "yes" : "no") << std::endl ;
+  assert(l_result);
+  l_result = l_horizontal_segment.belong(point<my_type>(l_x,10));
+  std::cout << "Belong outside : " << (l_result ? "yes" : "no") << std::endl ;
+  assert(!l_result);
 
   segment<my_type> l_vertical_segment(point<my_type>(0,0),point<my_type>(0,20));
   l_y = 10;
   l_x = l_vertical_segment.get_x(l_y);
   std::cout << "Compute X from Y according to vertical segment : " << std::endl ;
   std::cout << "(" << l_x << "," << l_y << ")" << std::endl ;
-  std::cout << "Belong : " << (l_vertical_segment.belong(point<my_type>(l_x,l_y)) ? "yes" : "no") << std::endl ;
+  l_result = l_vertical_segment.belong(point<my_type>(l_x,l_y));
+  std::cout << "Belong : " << (l_result ? "yes" : "no") << std::endl ;
+  assert(l_result);
+  l_result = l_vertical_segment.belong(point<my_type>(2,l_y));
+  std::cout << "Belong outside : " << (l_result ? "yes" : "no") << std::endl ;
+  assert(!l_result);
 
   std::cout << "--------- TEST VECTORIAL PRODUCT ------------" << std::endl ;
   point<my_type> l_up(70,70);
