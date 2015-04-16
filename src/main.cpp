@@ -41,7 +41,7 @@ void draw_internal_shape(simple_gui & p_gui,const shape<my_type> & p_shape,const
       for(my_type l_x = 0 ; l_x < 350 ; l_x += 10)
         {
           point<my_type> l_point(l_x,l_y);
-          if(p_shape.contains(l_point))
+          if(p_shape.contains(l_point,false))
             {
 #ifdef VERBOSE
               std::cout << l_point << " : IN" << std::endl ;
@@ -238,12 +238,12 @@ int main(void)
   std::cout << "Contains (0,0) ? " << l_convex_shape.contains(point<my_type>(0,0)) << std::endl ;
   std::cout << "Contains (30,10) ? " << l_convex_shape.contains(point<my_type>(150,50)) << std::endl ;
   std::cout << "Add (120,50) keep convexity : " << l_convex_shape.add(point<my_type>(600,250)) << std::endl ;
-  sleep(5);
+  sleep(2);
   std::cout << "Add (10,50) keep convexity : " << l_convex_shape.add(point<my_type>(50,250)) << std::endl ;
   l_gui.set_rectangle_without_lock(0,0,640,480,l_gui.getColorCode(0,0,0));
   draw_shape(l_gui,l_convex_shape,l_gui.getColorCode(255,0,0));
   l_gui.refresh();
-  sleep(10);
+  sleep(2);
   draw_internal_shape(l_gui,l_convex_shape,l_gui.getColorCode(0,0,255));
-  sleep(10);
+  sleep(5);
 }
