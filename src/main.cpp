@@ -29,11 +29,13 @@ using namespace geometry;
 
 typedef int64_t my_type;
 
+//------------------------------------------------------------------------------
 void draw_point(simple_gui & p_gui,const point<my_type> & p, const uint32_t & p_color_code)
 {
   p_gui.set_pixel_without_lock(p.get_x()+10,p.get_y()+10,p_color_code);
 }
 
+//------------------------------------------------------------------------------
 void draw_internal_shape(simple_gui & p_gui,const shape<my_type> & p_shape,const uint32_t & p_color_code)
 {
   for(my_type l_y = 0 ; l_y < 350 ; l_y += 10)
@@ -52,6 +54,7 @@ void draw_internal_shape(simple_gui & p_gui,const shape<my_type> & p_shape,const
         }
     }
 }
+//------------------------------------------------------------------------------
 void draw_shape(simple_gui & p_gui,const shape<my_type> & p_shape, const uint32_t & p_color_code)
 {
   uint32_t l_nb_segments = p_shape.get_nb_segment();
@@ -66,12 +69,46 @@ void draw_shape(simple_gui & p_gui,const shape<my_type> & p_shape, const uint32_
     }
 }
 
+//------------------------------------------------------------------------------
 void clear_gui(simple_gui & p_gui)
 {
   p_gui.set_rectangle_without_lock(0,0,640,480,p_gui.getColorCode(0,0,0));
   p_gui.refresh();
 }
 
+//------------------------------------------------------------------------------
+void check_intersec(const segment<my_type> & p_seg1,const segment<my_type> & p_seg2, bool p_result)
+{
+  std::cout << "Check Intersec between " << p_seg1 << " and " <<  p_seg2 << " : " ;
+  bool l_result = p_seg1.intersec(p_seg2);
+  std::cout << (l_result ? "yes" : "no") << std::endl ;
+  assert(p_result == l_result);
+}
+
+//------------------------------------------------------------------------------
+void check_intersec(const segment<my_type> & p_seg1,const segment<my_type> & p_seg2, bool p_result, bool p_single_intersec,const point<my_type> & p_intersec_point)
+{
+  bool l_single_intersec;
+  point<my_type> l_intersec_point(0,0);
+  std::cout << "Check Intersec between " << p_seg1 << " and " <<  p_seg2 << " : " ;
+  bool l_result = p_seg1.intersec(p_seg2,l_single_intersec,l_intersec_point);
+  std::cout << (l_result ? "yes" : "no");
+  if(l_single_intersec)
+    {
+      std::cout << " => " << l_intersec_point ;
+    }
+  std::cout << std::endl ;
+  assert(p_result == l_result);
+  if(l_result)
+    {
+      assert(p_single_intersec == l_single_intersec);
+      if(l_single_intersec)
+        {
+          assert(p_intersec_point == l_intersec_point);
+        }
+    }
+}
+//------------------------------------------------------------------------------
 void basic_tests(void)
 {
   std::cout << "------- TEST CHECK_CONVEXITY ---------" << std::endl ;
@@ -138,7 +175,7 @@ void basic_tests(void)
   std::cout << "Belong outside : " << (l_result ? "yes" : "no") << std::endl ;
   assert(!l_result);
 
-  segment<my_type> l_vertical_segment(point<my_type>(0,0),point<my_type>(0,20));
+  segment<my_type> l_vertical_segment(0,0,0,20);
   l_y = 10;
   l_x = l_vertical_segment.get_x(l_y);
   std::cout << "Compute X from Y according to vertical segment : " << std::endl ;
@@ -149,6 +186,65 @@ void basic_tests(void)
   l_result = l_vertical_segment.belong(point<my_type>(2,l_y));
   std::cout << "Belong outside : " << (l_result ? "yes" : "no") << std::endl ;
   assert(!l_result);
+
+
+  segment<my_type> l_vertical_segment2(10,0,10,20);
+  segment<my_type> l_vertical_segment3(0,100,0,200);
+  segment<my_type> l_vertical_segment4(0,150,0,250);
+  segment<my_type> l_vertical_segment5(0,50,0,250);
+
+  // Parallels vertical segments
+  check_intersec(l_vertical_segment,l_vertical_segment2,false);
+  // Aligned but not crossing
+  check_intersec(l_vertical_segment,l_vertical_segment3,false);
+  // Aligned crossings
+  check_intersec(l_vertical_segment3,l_vertical_segment4,true);
+  check_intersec(l_vertical_segment3,l_vertical_segment5,true);
+
+  segment<my_type> l_horizontal_segment2(0,10,20,10);
+  segment<my_type> l_horizontal_segment3(100,0,200,0);
+  segment<my_type> l_horizontal_segment4(150,0,250,0);
+  segment<my_type> l_horizontal_segment5(50,0,250,0);
+
+  // Parallels horizontal segments
+  check_intersec(l_horizontal_segment,l_horizontal_segment2,false);
+  // Aligned but not crossing
+  check_intersec(l_horizontal_segment,l_horizontal_segment3,false);
+  // Aligned crossings
+  check_intersec(l_horizontal_segment3,l_horizontal_segment4,true);
+  check_intersec(l_horizontal_segment3,l_horizontal_segment5,true);
+
+  // Other Other
+  check_intersec(segment<my_type>(1,1,5,3),segment<my_type>(2,3,4,2),true,true,point<my_type>(3,2));
+  check_intersec(segment<my_type>(0,0,2,2),segment<my_type>(1,1,3,3),true,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(0,0,3,3),segment<my_type>(1,1,2,2),true,false,point<my_type>(0,0));
+  // Horizontal and vertical segments
+  check_intersec(segment<my_type>(0,0,10,0),segment<my_type>(5,10,5,-10),true,true,point<my_type>(5,0));
+  check_intersec(segment<my_type>(5,10,5,-10),segment<my_type>(0,0,10,0),true,true,point<my_type>(5,0));
+  // Other vs Horizontal
+  check_intersec(segment<my_type>(0,0,10,0),segment<my_type>(0,-5,10,5),true,true,point<my_type>(5,0));
+  check_intersec(segment<my_type>(0,-5,10,5),segment<my_type>(0,0,10,0),true,true,point<my_type>(5,0));
+  // Other vs Vertical
+  check_intersec(segment<my_type>(5,5,5,-5),segment<my_type>(0,-5,10,5),true,true,point<my_type>(5,0));
+  check_intersec(segment<my_type>(0,-5,10,5),segment<my_type>(5,5,5,-5),true,true,point<my_type>(5,0));
+
+  check_intersec(segment<my_type>(135,0,135,25),segment<my_type>(100,50,170,50),false,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(0,0,100,0),segment<my_type>(101,0,200,0),false,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(0,0,100,0),segment<my_type>(100,0,200,0),true,true,point<my_type>(100,0));
+  check_intersec(segment<my_type>(0,0,100,0),segment<my_type>(80,0,200,0),true,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(0,0,100,0),segment<my_type>(50,0,700,0),true,false,point<my_type>(0,0));
+
+  check_intersec(segment<my_type>(100,50,170,50),segment<my_type>(135,0,135,25),false,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(101,0,200,0),segment<my_type>(0,0,100,0),false,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(100,0,200,0),segment<my_type>(0,0,100,0),true,true,point<my_type>(100,0));
+  check_intersec(segment<my_type>(80,0,200,0),segment<my_type>(0,0,100,0),true,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(50,0,700,0),segment<my_type>(0,0,100,0),true,false,point<my_type>(0,0));
+
+  check_intersec(segment<my_type>(175,150,250,150),segment<my_type>(250,50,100,150),false,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(250,50,100,150),segment<my_type>(175,150,250,150),false,false,point<my_type>(0,0));
+
+  check_intersec(segment<my_type>(175,0,175,50),segment<my_type>(250,50,100,150),false,false,point<my_type>(0,0));
+  check_intersec(segment<my_type>(250,50,100,150),segment<my_type>(175,0,175,50),false,false,point<my_type>(0,0));
 
   std::cout << "--------- TEST VECTORIAL PRODUCT ------------" << std::endl ;
   point<my_type> l_up(70,70);
