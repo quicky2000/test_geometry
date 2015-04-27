@@ -38,9 +38,9 @@ void draw_point(simple_gui & p_gui,const point<my_type> & p, const uint32_t & p_
 //------------------------------------------------------------------------------
 void draw_internal_shape(simple_gui & p_gui,const shape<my_type> & p_shape,const uint32_t & p_color_code)
 {
-  for(my_type l_y = 0 ; l_y < 350 ; l_y += 10)
+  for(my_type l_y = 0 ; l_y < 480 ; l_y += 10)
     {
-      for(my_type l_x = 0 ; l_x < 350 ; l_x += 10)
+      for(my_type l_x = 0 ; l_x < 640 ; l_x += 10)
         {
           point<my_type> l_point(l_x,l_y);
           if(p_shape.contains(l_point,false))
@@ -49,9 +49,9 @@ void draw_internal_shape(simple_gui & p_gui,const shape<my_type> & p_shape,const
               std::cout << l_point << " : IN" << std::endl ;
 #endif
               draw_point(p_gui,l_point,p_gui.getColorCode(0,255,0));
-              p_gui.refresh();
             }
         }
+      p_gui.refresh();
     }
 }
 //------------------------------------------------------------------------------
@@ -245,6 +245,12 @@ void basic_tests(void)
 
   check_intersec(segment<my_type>(175,0,175,50),segment<my_type>(250,50,100,150),false,false,point<my_type>(0,0));
   check_intersec(segment<my_type>(250,50,100,150),segment<my_type>(175,0,175,50),false,false,point<my_type>(0,0));
+
+  check_intersec(segment<my_type>(477,224,504,224),segment<my_type>(491,205,464,243),true,true,point<my_type>(478,224));
+  check_intersec(segment<my_type>(491,205,464,243),segment<my_type>(477,224,504,224),true,true,point<my_type>(478,224));
+
+  check_intersec(segment<my_type>(477,224,477,261),segment<my_type>(491,205,464,243),true,true,point<my_type>(477,225));
+  check_intersec(segment<my_type>(491,205,464,243),segment<my_type>(477,224,477,261),true,true,point<my_type>(477,225));
 
   std::cout << "--------- TEST VECTORIAL PRODUCT ------------" << std::endl ;
   point<my_type> l_up(70,70);
