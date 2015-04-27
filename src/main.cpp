@@ -22,7 +22,7 @@
 #include "shape.hpp"
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <unistd.h>
 
 using namespace geometry;
@@ -284,6 +284,44 @@ void basic_tests(void)
   std::cout << (l_ZERO_ZERO < l_ZERO_ZERO) << std::endl ;
 }
 
+bool fract(const std::vector<point<my_type>> & p_points, std::vector<point<my_type>> & p_result)
+{
+  assert(p_points.size() >= 2);
+  for(unsigned int l_index = 0; l_index < p_points.size() ; ++l_index)
+    {
+      my_type l_delta_x = p_points[(l_index + 1) % p_points.size()].get_x() - p_points[l_index].get_x();
+      my_type l_delta_y = p_points[(l_index + 1) % p_points.size()].get_y() - p_points[l_index].get_y();
+      my_type l_module = l_delta_x * l_delta_x + l_delta_y * l_delta_y;
+      if(l_module < 3)
+	{
+	  return true;
+	}
+      my_type l_relative_x = l_delta_x /3;
+      my_type l_relative_y = l_delta_y /3;
+
+      p_result.push_back(p_points[l_index]);
+      my_type l_new_x1 = p_points[l_index].get_x() + l_relative_x;
+      my_type l_new_y1 = p_points[l_index].get_y() + l_relative_y;
+      p_result.push_back(point<my_type>(l_new_x1,l_new_y1));
+
+      double l_pi = M_PI;
+      double l_angle = - l_pi /3;
+      my_type l_new_relative_x = l_relative_x * cos(l_angle) - l_relative_y * sin(l_angle);
+      my_type l_new_relative_y = l_relative_y * cos(l_angle) + l_relative_x * sin(l_angle);
+
+      my_type l_new_x2 = l_new_x1 + l_new_relative_x;
+      my_type l_new_y2 = l_new_y1 + l_new_relative_y;
+      p_result.push_back(point<my_type>(l_new_x2,l_new_y2));
+
+      my_type l_new_x3 = p_points[l_index].get_x() + 2 * l_relative_x;
+      my_type l_new_y3 = p_points[l_index].get_y() + 2 * l_relative_y;
+      p_result.push_back(point<my_type>(l_new_x3,l_new_y3));
+
+    }
+  // p_result.push_back(p_points[p_points.size() - 1]);
+  return false;
+}
+
 void test_polygon(simple_gui & p_gui,const std::vector<point<my_type>> & p_list)
 {
   clear_gui(p_gui);
@@ -348,4 +386,27 @@ int main(void)
   sleep(2);
   draw_internal_shape(l_gui,l_convex_shape,l_gui.getColorCode(0,0,255));
   sleep(5);
+
+
+  //-------------------------------------------------------------------
+  std::vector<point<my_type>> l_points1 = {point<my_type>(55,140),point<my_type>(545,140),point<my_type>(300,460)};
+  std::vector<point<my_type>> l_points2;
+  std::vector<point<my_type>> * l_old_points = & l_points2;
+  std::vector<point<my_type>> * l_new_points = & l_points1;
+  bool l_finish = false;
+  while(!l_finish)
+    {
+      std::swap<std::vector<point<my_type>> *>(l_old_points,l_new_points);
+      l_new_points->clear();
+      //      clear_gui(l_gui);
+      //      draw_shape(l_gui,polygon<my_type>(*l_old_points),l_gui.getColorCode(255,255,255));
+      //      l_gui.refresh();
+      std::cout << "Number of points : " << l_old_points->size() << std::endl ;
+      test_polygon(l_gui,*l_old_points);
+      l_finish = fract(*l_old_points,*l_new_points);
+    }
+
+  clear_gui(l_gui);
+  draw_shape(l_gui,polygon<my_type>(*l_old_points),l_gui.getColorCode(255,255,255));
+  l_gui.refresh();
 }
